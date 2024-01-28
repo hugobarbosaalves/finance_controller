@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class CustomContainer extends StatelessWidget {
   final String title;
   final List<Widget> children;
+  final bool sumOperation;
 
   const CustomContainer({
     Key? key,
     required this.title,
     required this.children,
+    required this.sumOperation,
   }) : super(key: key);
 
   @override

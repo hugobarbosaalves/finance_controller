@@ -4,12 +4,14 @@ class CustomContainer extends StatelessWidget {
   final String title;
   final List<Widget> children;
   final bool sumOperation;
+  final VoidCallback onAddButtonPressed;
 
   const CustomContainer({
     Key? key,
     required this.title,
     required this.children,
     required this.sumOperation,
+    required this.onAddButtonPressed,
   }) : super(key: key);
 
   @override
@@ -38,20 +40,32 @@ class CustomContainer extends StatelessWidget {
               children: [
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: Colors.grey[700],
                       borderRadius:
                           const BorderRadius.vertical(top: Radius.circular(10)),
                     ),
-                    child: Center(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.add,
+                              color: Colors.white,
+                            ),
+                            onPressed: onAddButtonPressed,
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -92,7 +106,6 @@ class ListItem extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 5),
             child: Icon(
               icon,
-              // color: Colors.deepOrange,
               color: colorIcon,
               size: 24,
             ),
@@ -108,7 +121,6 @@ class ListItem extends StatelessWidget {
           Text(
             'R\$ $value',
             style: TextStyle(
-              // color: Color.fromARGB(255, 207, 102, 102),
               color: colorMoney,
               fontSize: 16,
             ),

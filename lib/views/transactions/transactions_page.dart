@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../models/custom_container_data.dart';
 import '../../models/transaction.dart';
 import '../../widgets/custom_container.dart';
+import '../../widgets/finance_record_form.dart';
 
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({Key? key}) : super(key: key);
@@ -18,16 +19,33 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
   List<CustomContainerData> getContainersDataForMonth(DateTime month) {
     List<CustomContainerData> containersData = [
-      CustomContainerData(title: 'Rendas Fixas', transactions: []),
-      CustomContainerData(title: 'Rendas Variáveis', transactions: []),
-      CustomContainerData(title: 'Despesas Fixas', transactions: []),
-      CustomContainerData(title: 'Despesas Variáveis', transactions: []),
+      CustomContainerData(
+        title: 'Rendas Fixas',
+        transactions: [],
+        sumOperation: true,
+      ),
+      CustomContainerData(
+        title: 'Rendas Variáveis',
+        transactions: [],
+        sumOperation: true,
+      ),
+      CustomContainerData(
+        title: 'Despesas Fixas',
+        transactions: [],
+        sumOperation: false,
+      ),
+      CustomContainerData(
+        title: 'Despesas Variáveis',
+        transactions: [],
+        sumOperation: false,
+      ),
     ];
 
     if (month.month == 2 && month.year == DateTime.now().year) {
       return [
         CustomContainerData(
           title: 'Rendas Fixas',
+          sumOperation: true,
           transactions: [
             Transaction(
               value: 100.0,
@@ -58,6 +76,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
         ),
         CustomContainerData(
           title: 'Rendas Variáveis',
+          sumOperation: true,
           transactions: [
             Transaction(
               value: 200.0,
@@ -83,11 +102,11 @@ class _TransactionsPageState extends State<TransactionsPage> {
               colorIcon: Colors.green,
               colorMoney: Colors.green,
             ),
-            // Adicione mais transações aqui
           ],
         ),
         CustomContainerData(
           title: 'Despesas Fixas',
+          sumOperation: false,
           transactions: [
             Transaction(
               value: 50.0,
@@ -121,11 +140,11 @@ class _TransactionsPageState extends State<TransactionsPage> {
               colorIcon: Colors.red,
               colorMoney: Colors.red,
             ),
-            // Adicione mais transações aqui
           ],
         ),
         CustomContainerData(
           title: 'Despesas Variáveis',
+          sumOperation: false,
           transactions: [
             Transaction(
               value: 30.0,
@@ -151,7 +170,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
               colorIcon: Colors.red,
               colorMoney: Colors.red,
             ),
-            // Adicione mais transações aqui
           ],
         ),
       ];
@@ -166,6 +184,29 @@ class _TransactionsPageState extends State<TransactionsPage> {
           DateTime(currentMonth.year, currentMonth.month + increment);
       containersData = getContainersDataForMonth(currentMonth);
     });
+  }
+
+  void _showAddTransactionModal(int index, String title) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Adicionar transação para $title'),
+          content: TransactionForm(
+            sumOperation: containersData[index]
+                .transactions
+                .any((transaction) => transaction.sumOperation),
+            onSubmit: (transaction) {
+              setState(
+                () {
+                  containersData[index].transactions.add(transaction);
+                },
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -226,43 +267,52 @@ class _TransactionsPageState extends State<TransactionsPage> {
                   .expand(
                     (containerData) => [
                       CustomContainer(
-                        title: containerData.title,
-                        sumOperation: containerData.transactions
-                            .any((transaction) => transaction.sumOperation),
-                        children: containerData.transactions.map((transaction) {
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: <Widget>[
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 5),
-                                  child: Icon(
-                                    transaction.icon,
-                                    color: transaction.colorIcon,
-                                    size: 24,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    transaction.text,
-                                    style: const TextStyle(
-                                      fontSize: 18,
+                          title: containerData.title,
+                          sumOperation: containerData.transactions
+                              .any((transaction) => transaction.sumOperation),
+                          children:
+                              containerData.transactions.map((transaction) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 5,
+                                    ),
+                                    child: Icon(
+                                      transaction.icon,
+                                      color: transaction.colorIcon,
+                                      size: 24,
                                     ),
                                   ),
-                                ),
-                                Text(
-                                  ' R\$ ${transaction.sumOperation ? '+' : '-'} ${transaction.value.toStringAsFixed(2)}',
-                                  style: TextStyle(
-                                    color: transaction.colorMoney,
-                                    fontSize: 16,
+                                  Expanded(
+                                    child: Text(
+                                      transaction.text,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                                  Text(
+                                    ' R\$ ${transaction.sumOperation ? '+' : '-'} ${transaction.value.toStringAsFixed(2)}',
+                                    style: TextStyle(
+                                      color: transaction.colorMoney,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          onAddButtonPressed: () {
+                            int index = containersData.indexWhere(
+                                (element) => element == containerData);
+                            _showAddTransactionModal(
+                              index,
+                              containerData.title,
+                            );
+                          }),
                       SizedBox(
                         height: screenHeight * 0.02,
                       ),
